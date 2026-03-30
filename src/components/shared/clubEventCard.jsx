@@ -33,7 +33,7 @@ const ClubEventCard = ({
     <div
       onClick={() => navigate(`/club/events/${id}`)}
       className="
-        min-w-70 w-70 bg-white border border-gray-200 rounded-sm overflow-hidden shadow-sm flex flex-col snap-center transition-all h-90 cursor-pointer hover:scale-[1.01] hover:shadow-xl hover:-translate-y-1  duration-300 group 
+        min-w-70 w-70 bg-white border border-gray-200 rounded-sm overflow-hidden shadow-sm flex flex-col snap-center transition-all h-90 hover:scale-[1.01] hover:shadow-xl hover:-translate-y-0.5 duration-300 group 
       "
     >
       {/* Image Section (fixed height) */}
@@ -80,11 +80,11 @@ const ClubEventCard = ({
       </div>
 
       {/* Footer (always at bottom) */}
-      <div className="px-4 py-3 border-t flex justify-between items-center gap-2"  onClick={(e) => e.stopPropagation()}>
+      <div className="px-3 py-3 border-t flex justify-between items-center gap-2"  onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center gap-2">
           {/* Edit button */}
           <Link to={`/club/edit-event/${id}`}>
-            <button className={`px-6 py-1.5 rounded text-sm ${colors.edit}`}>
+            <button className={`cursor-pointer px-3 py-1.5 rounded text-sm hover:-translate-y-[0.5px] ${colors.edit}`}>
               Edit
             </button>
           </Link>
@@ -93,7 +93,7 @@ const ClubEventCard = ({
           {status === "upcoming" && (
             <button
               onClick={() => navigate(`/club/events/${id}/registrations`)}
-              className="text-xs px-2 py-1 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100"
+              className="cursor-pointer text-sm px-3 py-1.5 rounded-sm bg-blue-50 text-blue-600 hover:bg-blue-100"
             >
               View Registrations
             </button>
@@ -119,7 +119,7 @@ const ClubEventCard = ({
         </div> */}
 
 
-        <button onClick={() => navigate(`/club/events/${id}`)} className="p-2 rounded-full hover:bg-blue-50 transition">
+        <button onClick={() => navigate(`/club/events/${id}`)} className="cursor-pointer p-2 rounded-full hover:bg-blue-50 transition">
           <svg
             className="w-5 h-5 text-blue-500"
             fill="none"

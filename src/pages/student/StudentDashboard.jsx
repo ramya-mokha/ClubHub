@@ -169,7 +169,7 @@ const StudentDashboard = () => {
           <h1 className="text-3xl font-bold text-gray-900">
             Welcome back,{" "}
             <span className="text-blue-600">
-              {student?.profile.fullName || "Student"}
+              {student?.profile.fullName || student?.profile.displayName || "Student"}
             </span>
           </h1>
           <p className="text-gray-600 mt-2">
@@ -370,8 +370,8 @@ const StudentDashboard = () => {
               </p>
             </div>
             <button
-              onClick={() => window.location.href = studentInterests.length === 0 ? "/student/settings" : "/student"}
-              className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 whitespace-nowrap"
+              onClick={() => window.location.href = studentInterests.length === 0 ? "/student/settings" : "/student/clubs"}
+              className="cursor-pointer px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 whitespace-nowrap"
             >
               {studentInterests.length === 0 ? "Set Interests" : "Browse Clubs"}
             </button>

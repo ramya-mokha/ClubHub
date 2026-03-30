@@ -190,7 +190,7 @@ const ClubDashboard = () => {
             {/* Analytics Card */}
             <button
               onClick={() => navigate("/club/analytics")}
-              className="bg-white border border-gray-200 hover:border-blue-200 rounded-xl p-5 transition-all duration-200"
+              className="cursor-pointer bg-white border border-gray-200 hover:border-blue-200 rounded-xl p-5 transition-all duration-200"
             >
               <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center mb-3 mx-auto">
                 <BarChart3 className="w-6 h-6 text-blue-600" />
@@ -203,7 +203,7 @@ const ClubDashboard = () => {
             {/* View Members Card */}
             <button
               onClick={() => navigate("/club/members")}
-              className="bg-white border border-gray-200 hover:border-green-200 rounded-xl p-5 transition-all duration-200"
+              className="cursor-pointer bg-white border border-gray-200 hover:border-green-200 rounded-xl p-5 transition-all duration-200"
             >
               <div className="w-12 h-12 bg-green-50 rounded-lg flex items-center justify-center mb-3 mx-auto">
                 <Users className="w-6 h-6 text-green-600" />
@@ -216,7 +216,7 @@ const ClubDashboard = () => {
             {/* Announcement Card */}
             <button
               onClick={() => navigate("/club/announcements")}
-              className="bg-white border border-gray-200 hover:border-red-200 rounded-xl p-5 transition-all duration-200"
+              className="cursor-pointer bg-white border border-gray-200 hover:border-red-200 rounded-xl p-5 transition-all duration-200"
             >
               <div className="w-12 h-12 bg-red-50 rounded-lg flex items-center justify-center mb-3 mx-auto">
                 <Send className="w-6 h-6 text-red-600" />

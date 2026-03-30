@@ -66,7 +66,7 @@ const EventCard = ({
         {showAnalytics ? (
           <button
             onClick={() => navigate(`/club/events/${id}/analytics`)}
-            className={`px-4 py-1 rounded-lg text-sm text-white ${
+            className={`cursor-pointer px-4 py-1 rounded-lg text-sm text-white ${
               theme === "yellow"
                 ? "bg-yellow-400 hover:bg-yellow-500"
                 : theme === "red"
@@ -79,7 +79,7 @@ const EventCard = ({
         ) : variant === "feedback" ? (
           <button
             onClick={handleFeedbackClick}
-            className={`px-4 py-2 rounded-lg text-sm text-white ${
+            className={`cursor-pointer px-4 py-2 rounded-lg text-sm text-white ${
               theme === "yellow"
                 ? "bg-yellow-400 hover:bg-yellow-500"
                 : theme === "red"
@@ -92,7 +92,7 @@ const EventCard = ({
         ) : (
           <button
             onClick={() => navigate(path)}
-            className="p-2 rounded-full hover:bg-blue-50 transition"
+            className="cursor-pointer p-2 rounded-full hover:bg-blue-50 transition"
           >
             <svg
               className="w-5 h-5 text-blue-500"
