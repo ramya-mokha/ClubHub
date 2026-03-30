@@ -21,7 +21,7 @@ const PublicRoutes = () => {
   return (
     <div>
       <Routes>
-        <Route path="/signup" element={<SignUpCard1 />} />
+        <Route path="signup" element={<SignUpCard1 />} />
         <Route path="login" element={<LoginPage />} />
         <Route index element={<LandingPage />} />
         <Route path="signup1" element={<SignupPage />} />

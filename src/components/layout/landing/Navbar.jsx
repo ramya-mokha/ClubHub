@@ -45,7 +45,7 @@ const Navbar = () => {
       </div>
       <div className="flex items-center gap-3">
         <ButtonOutline text="Login" url="/login" />
-        <ButtonBg text="Join Platform" url="/signup1" />
+        <ButtonBg text="Join Platform" url="/signup2" />
       </div>
     </div>
   );

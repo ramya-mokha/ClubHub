@@ -2,8 +2,7 @@ import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { auth } from "@/firebase/firebase";
-import { createStudent } from "@/firebase/collections";
-import { createUser } from "@/firebase/collections"
+import { createStudent, createUser } from "@/firebase/collections";
 
 const SignUpStudent = () => {
   const navigate = useNavigate();
@@ -15,11 +14,7 @@ const SignUpStudent = () => {
     formState: { errors },
   } = useForm();
 
-  // Safety check
-  if (!user) {
-    navigate("/login");
-    return null;
-  }
+  // Safety check handled on submit now
 
   // const onSubmit = async (data) => {
   //   try {
@@ -41,15 +36,16 @@ const SignUpStudent = () => {
 
   const onSubmit = async (data) => {
     try {
-      const user = auth.currentUser;
+      let currentUser = auth.currentUser;
 
-      if (!user) {
-        alert("Not authenticated");
+      if (!currentUser) {
+        alert("Not authenticated. Please start over.");
+        navigate("/signup2");
         return;
       }
 
-      await createUser(user.uid, {
-        email: user.email,
+      await createUser(currentUser.uid, {
+        email: currentUser.email,
         role: "STUDENT",
         isApproved: true,
         isActive: true,
@@ -60,16 +56,16 @@ const SignUpStudent = () => {
 
       
       // await createStudent(user.uid, { ... })
-      await createStudent(user.uid, {
+      await createStudent(currentUser.uid, {
         fullName: data.fullName,
-        email: user.email,
+        email: currentUser.email,
         phone: `${data.countryCode}${data.phone}`,
-        photoURL: user.photoURL,
+        photoURL: currentUser.photoURL,
       });
       navigate("/student");
     } catch (err) {
       console.error("Signup failed:", err);
-      alert("Signup failed");
+      alert("Signup failed: " + err.message);
     }
   };  
 
@@ -187,7 +183,7 @@ const SignUpStudent = () => {
             type="submit"
             className="bg-blue-500 rounded-2xl text-white w-[60%] p-3 mt-4 self-center hover:bg-blue-600"
           >
-            Sign up with Google
+            Complete Sign Up
           </button>
         </form>
 

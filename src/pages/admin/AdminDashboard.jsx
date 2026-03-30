@@ -2,29 +2,61 @@ import StatsCard from "./StatsCard";
 import RequestsTable from "./RequestsTable";
 import { useState, useEffect } from "react";
 import { getPendingClubRequests } from "@/firebase/collections";
-import {doc, updateDoc} from "firebase/firestore";
+import {doc, updateDoc, collection, getCountFromServer, getDocs, query, where} from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import { createClub } from "@/firebase/collections";
 import { auth } from "@/firebase/firebase";
+import Navbar from "@/components/layout/DashboardA/Navbar";
+import { useNavigate } from "react-router-dom";
 
 const AdminDashboard = () => {
   const [requests, setRequests] = useState([]);
+  const [approvedClubs, setApprovedClubs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("pending");
+
+  const navigate = useNavigate();
+  const [stats, setStats] = useState({
+    students: null,
+    clubs: null,
+    requests: null,
+    events: null,
+  });
 
   useEffect(() => {
-    const fetchRequests = async () => {
+    const fetchRequestsAndStats = async () => {
       try {
-        const data = await getPendingClubRequests();
+        const [data, studentSnap, clubSnap, requestSnap, eventSnap] = await Promise.all([
+          getPendingClubRequests(),
+          getCountFromServer(collection(db, "students")),
+          getCountFromServer(collection(db, "clubs")),
+          getCountFromServer(collection(db, "clubRequests")),
+          getCountFromServer(collection(db, "events")),
+        ]);
+        
+        // Fetch approved active clubs natively
+        const clubsQuery = query(collection(db, "clubs"), where("isActive", "==", true));
+        const activeClubsData = await getDocs(clubsQuery);
+        setApprovedClubs(activeClubsData.docs.map(d => ({id: d.id, ...d.data()})));
+
         setRequests(data);
+        setStats({
+          students: studentSnap.data().count,
+          clubs: clubSnap.data().count,
+          requests: data.length, // specifically pending requests
+          events: eventSnap.data().count,
+        });
       } catch (err) {
-        console.error("Failed to fetch requests", err);
+        console.error("Failed to fetch requests or stats", err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchRequests();
+    fetchRequestsAndStats();
   }, []);
+
+  // Logout is now handled exclusively by the new Navbar globally
 
   const handleApprove = async (req) => {
     
@@ -72,23 +104,10 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="flex justify-between items-center px-8 py-4 bg-white border-b">
-        <div className="flex items-center gap-2 font-semibold">
-          <span className="text-blue-600">College Club</span>
-        </div>
-
-        <div className="flex gap-6 items-center text-sm">
-          <button>View Users</button>
-          <button>View Clubs</button>
-          <button className="border px-4 py-1 rounded text-red-500">
-            Logout
-          </button>
-        </div>
-      </div>
+      <Navbar />
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto px-8 py-8">
+      <div className="max-w-7xl mx-auto px-8 py-8 pt-24">
         <h1 className="text-3xl font-semibold">Admin Panel</h1>
         <p className="text-gray-500 mt-1">
           Review and manage students clubs in college
@@ -96,37 +115,76 @@ const AdminDashboard = () => {
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
-          <StatsCard title="Total Students" />
-          <StatsCard title="Total Clubs" />
-          <StatsCard title="Pending Requests" />
-          <StatsCard title="Total Events" />
+          <StatsCard title="Total Students" value={stats.students} />
+          <StatsCard title="Total Clubs" value={stats.clubs} />
+          <StatsCard title="Pending Requests" value={stats.requests} />
+          <StatsCard title="Total Events" value={stats.events} />
         </div>
 
         {/* Tabs */}
         <div className="flex gap-4 mt-10">
-          <button className="px-6 py-2 bg-yellow-400 rounded text-white">
-            Pending Requests
+          <button 
+            onClick={() => setActiveTab("pending")}
+            className={`px-6 py-2 rounded cursor-pointer transition-colors ${activeTab === "pending" ? "bg-yellow-400 text-white" : "bg-gray-100 text-gray-500 hover:bg-gray-200"}`}>
+            Pending Requests ({requests.length})
           </button>
-          <button className="px-6 py-2 bg-gray-100 rounded text-gray-500">
-            Approved Clubs
+          <button 
+            onClick={() => setActiveTab("approved")}
+            className={`px-6 py-2 rounded cursor-pointer transition-colors ${activeTab === "approved" ? "bg-green-500 text-white" : "bg-gray-100 text-gray-500 hover:bg-gray-200"}`}>
+            Approved Clubs ({approvedClubs.length})
           </button>
         </div>
 
         {/* Filters */}
-        <div className="flex justify-end gap-4 mt-4">
-          <button className="border px-4 py-2 rounded">Filter</button>
-          <button className="border px-4 py-2 rounded">Sort</button>
-        </div>
+        {activeTab === "pending" && (
+          <div className="flex justify-end gap-4 mt-4">
+            <button className="border px-4 py-2 text-sm rounded cursor-not-allowed opacity-50">Filter</button>
+            <button className="border px-4 py-2 text-sm rounded cursor-not-allowed opacity-50">Sort</button>
+          </div>
+        )}
 
-        {/* Table */}
+        {/* Dynamic Table Rendering */}
         {loading ? (
-          <p className="mt-6">Loading requests...</p>
-        ) : (
+          <p className="mt-6 text-gray-500">Loading comprehensive dashboard data...</p>
+        ) : activeTab === "pending" ? (
           <RequestsTable
             data={requests}
             onApprove={handleApprove}
             onReject={handleReject}
           />
+        ) : (
+          <div className="mt-8 overflow-x-auto border rounded-xl bg-white shadow-sm overflow-hidden">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-[#f8f9fa] border-b">
+                <tr>
+                  <th className="px-6 py-4 font-medium text-gray-600">Club Name</th>
+                  <th className="px-6 py-4 font-medium text-gray-600">President</th>
+                  <th className="px-6 py-4 font-medium text-gray-600">Email Address</th>
+                  <th className="px-6 py-4 font-medium text-gray-600">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {approvedClubs.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} className="px-6 py-10 text-center text-gray-400">No approved clubs yet.</td>
+                  </tr>
+                ) : (
+                  approvedClubs.map((club) => (
+                    <tr key={club.id} className="hover:bg-gray-50/50">
+                      <td className="px-6 py-4 font-medium text-gray-900">{club.clubName || "Unknown"}</td>
+                      <td className="px-6 py-4 text-gray-600">{club.presidentName || "Unknown"}</td>
+                      <td className="px-6 py-4 text-gray-600">{club.email || "Unknown"}</td>
+                      <td className="px-6 py-4">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          Active
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         )}
 
       </div>

@@ -19,14 +19,15 @@ export const getUserById = async (uid) => {
 
 export const createUser = async (uid, data) => {
   const ref = doc(db, "users", uid);
-  const ADMIN_EMAIL = "randomspamshaha@gmail.com";
+  const adminEmails = import.meta.env.VITE_ADMIN_EMAIL ? import.meta.env.VITE_ADMIN_EMAIL.split(',') : ["mokhamatamramya@gmail.com"];
+  const isAdminUser = adminEmails.includes(data.email);
   await setDoc(ref, {
     uid,
     ...data,
     email: data.email,
     status: "ACTIVE",
-    role: data.role,
-    isAdmin: ADMIN_EMAIL.includes(data.email),
+    role: isAdminUser ? "ADMIN" : data.role,
+    isAdmin: isAdminUser,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   });
@@ -97,14 +98,26 @@ export const updateStudent = async (uid, updates) => {
 // - Request for Creating Club 
 
 export const createClubRequest = async (uid, data) => {
-  const ref = doc(db, "clubRequests", uid);
+  const requestRef = doc(db, "clubRequests", uid);
 
-  await setDoc(ref, {
+  // 1️⃣ Create the pending approval request
+  await setDoc(requestRef, {
     uid,                 // club owner's auth uid
     ...data,             // clubName, presidentName, email, etc
     status: "PENDING",
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
+  });
+
+  // 2️⃣ Pre-initialize the actual club record as inactive to prevent breaking manual tests
+  const clubRef = doc(db, "clubs", uid);
+  await setDoc(clubRef, {
+    clubId: uid,
+    clubName: data.clubName || "",
+    presidentName: data.presidentName || "",
+    email: data.email || "",
+    isActive: false,  // 🔥 Ensures it remains hidden until approved natively
+    createdAt: serverTimestamp(),
   });
 };
 

@@ -6,6 +6,7 @@ import HeaderSection from "@/components/layout/Settings/HeaderSection";
 import ProfileInfo from "@/components/layout/SettingsC/ProfileInfo";
 import PreferencesSection from "@/components/layout/SettingsC/Preferences";
 import HiringManagementSection from "@/components/layout/SettingsC/HiringManagementSection";
+import DangerZoneSection from "@/components/layout/Settings/DangerZoneSection";
 
 const Settings = () => {
   const [club, setClub] = useState(null);
@@ -31,6 +32,8 @@ const Settings = () => {
 
         {/* ✅ Now club exists */}
         <HiringManagementSection club={club} />
+
+        <DangerZoneSection />
       </div>
     </div>
   );

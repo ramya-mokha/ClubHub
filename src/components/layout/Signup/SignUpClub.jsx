@@ -1,8 +1,7 @@
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { auth } from "@/firebase/firebase";
-import { createClubRequest } from "@/firebase/collections";
-import { useState, useEffect } from "react";
+import { createClubRequest, createUser } from "@/firebase/collections";
 const SignUpClub = () => {
   const navigate = useNavigate();
   const user = auth.currentUser;
@@ -13,19 +12,28 @@ const SignUpClub = () => {
     formState: { errors },
   } = useForm();
 
-  // Safety check
-  useEffect(() => {
-    if (!auth.currentUser) {
-      navigate("/login");
-    }
-  }, [navigate]);
+  // Safety check handled on submit now
 
   const onSubmit = async (data) => {
     try {
-      await createClubRequest(user.uid, {
+      let currentUser = auth.currentUser;
+
+      if (!currentUser) {
+        alert("Not authenticated. Please start over.");
+        navigate("/signup2");
+        return;
+      }
+
+      await createUser(currentUser.uid, {
+        email: currentUser.email,
+        role: "CLUB",
+        isApproved: false,
+        isActive: true,
+      });
+      await createClubRequest(currentUser.uid, {
         clubName: data.clubName,
         presidentName: data.presidentName,
-        email: user.email,
+        email: currentUser.email,
         // phone: data.phone,
         //description: data.description,
       });
@@ -131,7 +139,7 @@ const SignUpClub = () => {
             type="submit"
             className="bg-green-500 text-white rounded-md p-2 mt-2 hover:bg-green-600"
           >
-            Get Approval
+            Submit Club Request
           </button>
         </form>
 

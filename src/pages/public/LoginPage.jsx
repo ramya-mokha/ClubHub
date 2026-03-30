@@ -10,12 +10,15 @@ const LoginPage = () => {
   const handleGoogleLogin = async () => {
     try {
       const result = await googleSignIn();
+      console.log("🟢 LoginPage - Google sign-in result:", result);
 
       // 🆕 New user → go to signup flow
       if (result.isNewUser) {
+        console.log("🟢 NEW USER → navigating to /signup for role selection");
         navigate("/signup");
         return;
       }
+      console.log("🟢 EXISTING USER → role:", result.role);
 
       // ✅ Existing users routing
       if (result.role === "ADMIN") {
@@ -30,6 +33,11 @@ const LoginPage = () => {
         } else {
           navigate("/waiting-approval");
         }
+      } 
+      else if (!result.role) {
+        // user exists but hasn't picked a role
+        console.log("🟢 EXISTING USER BUT NO ROLE → navigating to /signup");
+        navigate("/signup");
       } 
       else {
         // safety fallback

@@ -12,7 +12,43 @@ import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import { getUserById, getClubById } from "@/firebase/collections";
 import { auth } from "@/firebase/firebase";
-import { uploadImage } from "@/firebase/storage";
+
+const compressImageToBase64 = (file) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target.result;
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const MAX_WIDTH = 800;
+        const MAX_HEIGHT = 800;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+          }
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL("image/jpeg", 0.6)); // 0.6 quality for aggressive compression
+      };
+      img.onerror = (err) => reject(err);
+    };
+    reader.onerror = (err) => reject(err);
+  });
+};
 
 const buildDateTime = (date, time) =>
   date && time ? new Date(`${date}T${time}`) : null;
@@ -184,14 +220,15 @@ export default function CreateEventPage() {
         Sports: "green",
         Hackathon: "yellow",
       };
-      // 🖼 Upload cover image (if provided)
+      // 🖼 Process cover image (if provided) -> Base64 string to bypass Firebase Storage
       let imageURL = "https://picsum.photos/seed/event/600/400"; // fallback
 
       if (formData.coverImage && formData.coverImage[0]) {
-        imageURL = await uploadImage(
-          formData.coverImage[0],
-          `events/${Date.now()}_${formData.coverImage[0].name}`
-        );
+        try {
+          imageURL = await compressImageToBase64(formData.coverImage[0]);
+        } catch (e) {
+          console.error("Image compression failed", e);
+        }
       }
 
       const payload = {

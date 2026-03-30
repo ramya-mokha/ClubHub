@@ -71,76 +71,21 @@
 
 // export default SignUpCard1;
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "@/firebase/firebase";
-import { createUser } from "@/firebase/collections";
 import bgImg from "@/assets/SignIn.png";
 
 const SignUpCard1 = () => {
   const navigate = useNavigate();
 
-  const [firebaseUser, setFirebaseUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  // 🔐 Wait for Firebase Auth to be READY
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setFirebaseUser(user);
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  // ⏳ Prevent render while loading
-  if (loading) {
-    return (
-      <div className="w-screen h-screen flex items-center justify-center">
-        Loading...
-      </div>
-    );
-  }
-
-  // 🚨 Safety fallback (should not happen)
-  if (!firebaseUser) {
-    navigate("/login");
-    return null;
-  }
-
   /* ---------------- STUDENT ---------------- */
-  const handleStudent = async () => {
-    try {
-      await createUser(firebaseUser.uid, {
-        email: firebaseUser.email,
-        role: "STUDENT",
-        isApproved: true,
-        isActive: true,
-      });
-
-      navigate("/signup-student");
-    } catch (err) {
-      console.error("Student signup failed:", err);
-      alert("Something went wrong. Try again.");
-    }
+  const handleStudent = () => {
+    navigate("/signup-student");
   };
 
   /* ---------------- CLUB ---------------- */
-  const handleClub = async () => {
-    try {
-      await createUser(firebaseUser.uid, {
-        email: firebaseUser.email,
-        role: "CLUB",
-        isApproved: false,
-        isActive: true,
-      });
-
-      navigate("/signup-club");
-    } catch (err) {
-      console.error("Club signup failed:", err);
-      alert("Something went wrong. Try again.");
-    }
+  const handleClub = () => {
+    navigate("/signup-club");
   };
   return (
     <div

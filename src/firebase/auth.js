@@ -24,7 +24,7 @@ export const googleSignIn = async () => {
     return {
       firebaseUser: user,
       isNewUser: false,
-      role: userData.role,
+      role: userData.isAdmin ? "ADMIN" : userData.role,
       isApproved: userData.isApproved,
     };
   } catch (error) {

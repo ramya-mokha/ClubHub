@@ -5,6 +5,7 @@ import StudentRoutes from "./StudentRoutes";
 import ClubRoutes from "./ClubRoutes";
 import AdminRoutes from "./AdminRoutes";
 import PrivateRoute from "./PrivateRoute";
+import RoleProtectedRoute from "./RoleProtectedRoute";
 import NotFoundPage from "@/pages/public/NotFoundPage";
 
 export default function AppRoutes() {
@@ -16,18 +17,18 @@ export default function AppRoutes() {
       <Route
         path="/admin/*"
         element={
-          <PrivateRoute>
+          <RoleProtectedRoute allowedRoles={["ADMIN"]}>
             <AdminRoutes />
-          </PrivateRoute>
+          </RoleProtectedRoute>
         }
       />
       {/* Student */}
       <Route
         path="/student/*"
         element={
-          <PrivateRoute>
+          <RoleProtectedRoute allowedRoles={["STUDENT"]}>
             <StudentRoutes />
-          </PrivateRoute>
+          </RoleProtectedRoute>
         }
       />
 
@@ -35,9 +36,9 @@ export default function AppRoutes() {
       <Route
         path="/club/*"
         element={
-          <PrivateRoute>
+          <RoleProtectedRoute allowedRoles={["CLUB"]} requireApproval={true}>
             <ClubRoutes />
-          </PrivateRoute>
+          </RoleProtectedRoute>
         }
       />
 

@@ -27,8 +27,8 @@ const Hero = () => {
         </p>
 
         <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
-          <ButtonOutline text="Manage your club" url="/signup1" />
-          <ButtonBg text="Explore events" url="/signup1" />
+          <ButtonOutline text="Manage your club" url="/signup2" />
+          <ButtonBg text="Explore events" url="/signup2" />
         </div>
       </div>
     </section>
