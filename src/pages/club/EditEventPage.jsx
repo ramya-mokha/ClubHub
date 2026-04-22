@@ -34,6 +34,25 @@ const toTimeInput = (ts) => {
   return d.toISOString().slice(11, 16);
 };
 
+const formatDate = (date) => {
+  if (!date) return "";
+  const d = new Date(date);
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const year = d.getFullYear();
+  return `${day}/${month}/${year}`;
+};
+
+const formatTime = (date, time) => {
+  if (!date || !time) return "";
+  const d = new Date(`${date}T${time}`);
+  let hours = d.getHours();
+  const minutes = String(d.getMinutes()).padStart(2, "0");
+  const ampm = hours >= 12 ? "PM" : "AM";
+  hours = hours % 12 || 12;
+  return `${hours}:${minutes} ${ampm}`;
+};
+
 export default function EditEventPage() {
   const { id } = useParams(); // eventId
   const navigate = useNavigate();
@@ -138,11 +157,16 @@ export default function EditEventPage() {
         title: data.title,
         description: data.description,
         highlights: data.highlights.filter(Boolean),
-        attendees: data.attendees,
+        attendees: Number(data.attendees),
         location: {
           venue: data.venue,
           college: data.college,
           area: data.area,
+        },
+        date: formatDate(data.startDate),
+        time: {
+          start: formatTime(data.startDate, data.startTime),
+          end: formatTime(data.endDate, data.endTime),
         },
         startDateTime,
         endDateTime,

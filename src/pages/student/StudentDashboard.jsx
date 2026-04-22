@@ -56,7 +56,7 @@ const StudentDashboard = () => {
         setStudent(studentData);
 
         // Get recommended events based on student interests
-        const interests = studentData.preferences?.interest || [];
+        const interests = studentData.preferences?.interests || [];
         setStudentInterests(interests);
 
         if (interests.length > 0) {

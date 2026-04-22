@@ -31,6 +31,7 @@ const ClubInfo = () => {
   /* ---------------- STATE ---------------- */
   const [clubs, setClubs] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
+  const FALLBACK_LOGO = "https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&w=600&q=80";
 
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
@@ -200,15 +201,11 @@ const ClubInfo = () => {
               {/* CARD HEADER */}
               <div className="flex justify-between items-start mb-5">
                 <div className="w-14 h-14 rounded-md bg-gray-100 overflow-hidden flex items-center justify-center group-hover:scale-110 transition-transform">
-                  {club.avatar ? (
                     <img
-                      src={club.avatar}
+                      src={club.avatar || FALLBACK_LOGO}
                       alt={club.name}
                       className="w-full h-full object-cover"
                     />
-                  ) : (
-                    <span className="text-xs text-gray-400 ">Logo</span>
-                  )}
                 </div>
 
                 <span

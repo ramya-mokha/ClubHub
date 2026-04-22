@@ -77,7 +77,7 @@ const ProfileInfo = () => {
         instagram: data.instagram || "",
         linkedin: data.linkedin || "",
         avatar:
-          data.avatar || "https://api.dicebear.com/7.x/fun-emoji/svg?seed=User",
+          data.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${data.clubName || "User"}`,
       });
     };
 

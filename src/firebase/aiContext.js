@@ -30,11 +30,11 @@ export async function getAIStudentContext() {
 
   return {
     profile: {
-      name: student.profile?.displayName,
+      name: student.profile?.fullName || student.profile?.displayName,
       email: student.profile?.email,
     },
     preferences: {
-      interest: student.preferences?.interest || [],
+      interests: student.preferences?.interests || [],
     },
     academicSchedule: {
       hasSchedule: !!schedule,

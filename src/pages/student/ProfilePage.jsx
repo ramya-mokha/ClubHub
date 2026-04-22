@@ -82,7 +82,8 @@ const ProfilePage = () => {
                 <img
                   src={
                     student.avatar ||
-                    "https://api.dicebear.com/7.x/fun-emoji/svg?seed=User"
+                    student.profile?.photoURL ||
+                    `https://api.dicebear.com/7.x/initials/svg?seed=${student.profile?.fullName || student.profile?.displayName || "User"}`
                   }
                   alt="Profile"
                   className="w-36 h-36 rounded-full border-4 border-white object-cover"
@@ -90,7 +91,7 @@ const ProfilePage = () => {
               </div>
 
               <h1 className="mt-6 text-3xl font-medium text-gray-900">
-                {student.profile?.displayName || "Student"}
+                {student.profile?.fullName || student.profile?.displayName || "Student"}
               </h1>
               <p className="mt-1 text-gray-600">{student.profile?.email}</p>
 

@@ -49,16 +49,15 @@ const UpcomingEventsSection = () => {
     "Sports",
     "Coding",
   ];
+
+  // Dynamically derive unique club names from the fetched events
   const clubNames = [
-    "Coding Club",
-    "Sports Society",
-    "Music Society",
-    "Creative Arts",
-    "Eco Warriors",
-    "Debate Club",
-    "AI Enthusiasts",
-    "Cloud Community",
-  ];
+    ...new Set(
+      allEvents
+        .map((e) => e.clubName)
+        .filter(Boolean)
+    ),
+  ].sort();
 
   // Filter logic
   const filteredEvents = allEvents.filter((event) => {

@@ -29,7 +29,7 @@ const PreferencesSection = ({ student, onUpdate, refetchStudent }) => {
   useEffect(() => {
     if (!student) return;
 
-    setSelectedInterests(student.preferences?.interest || []);
+    setSelectedInterests(student.preferences?.interests || []);
 
     const url = student.preferences?.academicScheduleURL;
     if (url && !url.startsWith("blob:")) {
@@ -62,7 +62,7 @@ const PreferencesSection = ({ student, onUpdate, refetchStudent }) => {
 
     try {
       await onUpdate({
-        "preferences.interest": selectedInterests,
+        "preferences.interests": selectedInterests,
       });
 
       setIsEditing(false);

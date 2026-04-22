@@ -102,15 +102,11 @@ const Navbar = () => {
             <div className="dropdown dropdown-bottom dropdown-end focus:outline-none focus:ring-0 hover:bg-transparent">
               <div tabIndex={0} role="button" className="flex items-center">
                 <div className="rounded-full bg-white w-8 h-8 flex items-center justify-center overflow-hidden mr-2">
-                  {avatar ? (
-                    <img
-                      src={avatar}
-                      alt="profile"
-                      className="w-8 h-8 object-cover rounded-full"
-                    />
-                  ) : (
-                    <FaRegUser className="text-green-500" />
-                  )}
+                  <img
+                    src={avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${auth.currentUser?.displayName || "User"}`}
+                    alt="profile"
+                    className="w-8 h-8 object-cover rounded-full"
+                  />
                 </div>
                 <RiArrowDropDownLine size={24}/>
               </div>

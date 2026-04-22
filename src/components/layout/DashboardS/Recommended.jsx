@@ -20,7 +20,7 @@ const RecommendedSection = () => {
       
       try {
         const student = await getStudentById(user.uid);
-        const userInterests = student.preferences?.interest || [];
+        const userInterests = student.preferences?.interests || [];
         setInterests(userInterests);
         
         if (userInterests.length > 0) {

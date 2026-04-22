@@ -68,7 +68,7 @@ export default function ChatWindow({ onClose }) {
         message: text,
         user: getAIUserContext(),
         student,
-        events: await getAIEventContext(student?.preferences?.interest || []),
+        events: await getAIEventContext(student?.preferences?.interests || []),
       });
 
       const aiMessage = {

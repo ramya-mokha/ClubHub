@@ -238,14 +238,29 @@ export const getStudentPastEvents = async (studentUid)=>{
     try{
         const q = query(
             collection(db, "events"),
-            where("status", "==","completed"),
             where("registeredUsers", "array-contains", studentUid)
         );
         const snapshot = await getDocs(q);
-        return snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data(),
-        }));
+        const now = new Date();
+        const pastEvents = [];
+
+        snapshot.docs.forEach((docSnap) => {
+            const data = docSnap.data();
+            let isPast = data.status === "completed";
+            
+            if (data.status === "upcoming" && data.endDateTime) {
+                const endD = data.endDateTime.toDate ? data.endDateTime.toDate() : new Date(data.endDateTime);
+                if (endD < now) {
+                    isPast = true;
+                    // Auto-update expired events
+                    updateDoc(doc(db, "events", docSnap.id), { status: "completed" }).catch(console.error);
+                }
+            }
+            if (isPast) {
+                pastEvents.push({ id: docSnap.id, ...data, status: "completed" });
+            }
+        });
+        return pastEvents;
     }catch (error){
         console.log("Errot fetching students past events:", error);
         return [];
@@ -260,11 +275,24 @@ export const getStudentUpcomingEvents = async (studentUid)=>{
             where("registeredUsers", "array-contains", studentUid)
         );
         const snapshot = await getDocs(q);
+        const now = new Date();
+        const upcomingEvents = [];
 
-        return snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data(),
-        }));
+        snapshot.docs.forEach((docSnap) => {
+            const data = docSnap.data();
+            let isPast = false;
+            if (data.endDateTime) {
+                const endD = data.endDateTime.toDate ? data.endDateTime.toDate() : new Date(data.endDateTime);
+                if (endD < now) {
+                    isPast = true;
+                    updateDoc(doc(db, "events", docSnap.id), { status: "completed" }).catch(console.error);
+                }
+            }
+            if (!isPast) {
+                upcomingEvents.push({ id: docSnap.id, ...data });
+            }
+        });
+        return upcomingEvents;
 
     } catch (error){
         console.log("Error fetching student upcoming events:", error);
@@ -291,16 +319,21 @@ export const getRecommendedEvents = async (interests = []) => {
   const q = query(
     collection(db, "events"),
     where("status", "==", "upcoming"),
-    
   );
 
   const snap = await getDocs(q);
+  const now = new Date();
 
   return snap.docs
     .map((doc) => ({ id: doc.id, ...doc.data() }))
-    .filter((event) =>
-       interests.includes(event.type));
-    
+    .filter((event) => {
+      let isPast = false;
+      if (event.endDateTime) {
+        const endD = event.endDateTime.toDate ? event.endDateTime.toDate() : new Date(event.endDateTime);
+        if (endD < now) isPast = true;
+      }
+      return !isPast && interests.includes(event.type);
+    });
 };
 // club announcements - 
 /* ---------------- CREATE ANNOUNCEMENT ---------------- */
@@ -349,11 +382,25 @@ export const getUpcomingEvents = async ()=>{
             where("status", "==", "upcoming")
         )
         const snapshot = await getDocs(q);
+        const now = new Date();
+        const upcomingEvents = [];
 
-        return snapshot.docs.map(doc =>({
-            id: doc.id,
-            ...doc.data(),
-        }))
+        snapshot.docs.forEach(docSnap => {
+            const data = docSnap.data();
+            let isPast = false;
+            if (data.endDateTime) {
+                const endD = data.endDateTime.toDate ? data.endDateTime.toDate() : new Date(data.endDateTime);
+                if (endD < now) {
+                    isPast = true;
+                    updateDoc(doc(db, "events", docSnap.id), { status: "completed" }).catch(console.error);
+                }
+            }
+            if (!isPast) {
+                upcomingEvents.push({ id: docSnap.id, ...data });
+            }
+        });
+
+        return upcomingEvents;
     }catch(error){
         console.log("Error fetching all the upcoming events: ", error);
         return[];
@@ -394,10 +441,25 @@ export const getUpcomingRegisteredEvents = async (userId) =>{
             where("status", "==" , "upcoming")
         );
         const snapshot = await getDocs(q);
-        return snapshot.docs.map(doc =>({
-            id: doc.id,
-            ...doc.data(),
-        }));
+        const now = new Date();
+        const upcomingEvents = [];
+
+        snapshot.docs.forEach(docSnap => {
+            const data = docSnap.data();
+            let isPast = false;
+            if (data.endDateTime) {
+                const endD = data.endDateTime.toDate ? data.endDateTime.toDate() : new Date(data.endDateTime);
+                if (endD < now) {
+                    isPast = true;
+                    updateDoc(doc(db, "events", docSnap.id), { status: "completed" }).catch(console.error);
+                }
+            }
+            if (!isPast) {
+                upcomingEvents.push({ id: docSnap.id, ...data });
+            }
+        });
+
+        return upcomingEvents;
     }catch (error){
         console.log("Error fetching registered events : ",error );
         return [];
@@ -414,10 +476,24 @@ export const getClubUpcomingEvents = async (clubId) => {
     );
 
     const snapshot = await getDocs(q);
-    return snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    const now = new Date();
+    const upcomingEvents = [];
+
+    snapshot.docs.forEach((docSnap) => {
+      const data = docSnap.data();
+      let isPast = false;
+      if (data.endDateTime) {
+          const endD = data.endDateTime.toDate ? data.endDateTime.toDate() : new Date(data.endDateTime);
+          if (endD < now) {
+              isPast = true;
+              updateDoc(doc(db, "events", docSnap.id), { status: "completed" }).catch(console.error);
+          }
+      }
+      if (!isPast) {
+          upcomingEvents.push({ id: docSnap.id, ...data });
+      }
+    });
+    return upcomingEvents;
   } catch (err) {
     console.error("Error fetching club upcoming events:", err);
     return [];
@@ -429,15 +505,30 @@ export const getClubPastEvents = async (clubId) => {
   try {
     const q = query(
       collection(db, "events"),
-      where("clubId", "==", clubId),
-      where("status", "==", "completed")
+      where("clubId", "==", clubId)
     );
 
     const snapshot = await getDocs(q);
-    return snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    const now = new Date();
+    const pastEvents = [];
+
+    snapshot.docs.forEach((docSnap) => {
+      const data = docSnap.data();
+      let isPast = data.status === "completed";
+      
+      if (data.status === "upcoming" && data.endDateTime) {
+          const endD = data.endDateTime.toDate ? data.endDateTime.toDate() : new Date(data.endDateTime);
+          if (endD < now) {
+              isPast = true;
+              updateDoc(doc(db, "events", docSnap.id), { status: "completed" }).catch(console.error);
+          }
+      }
+      if (isPast) {
+          pastEvents.push({ id: docSnap.id, ...data, status: "completed" });
+      }
+    });
+
+    return pastEvents;
   } catch (err) {
     console.error("Error fetching club past events:", err);
     return [];
@@ -571,6 +662,7 @@ export const getRegisteredStudentsForEvent = async (eventId) => {
       return {
         uid,
         name:
+          data.profile?.fullName ||
           data.profile?.displayName ||
           data.fullName ||
           "Unknown",

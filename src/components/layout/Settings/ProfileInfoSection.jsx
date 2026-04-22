@@ -55,12 +55,13 @@ const ProfileInfoSection = ({ student, onUpdate }) => {
     if (!student) return;
 
     setFormData({
-      fullName: student.profile.displayName || "",
-      email: student.profile.email || "",
-      phone: student.phone || "",
+      fullName: student.profile?.fullName || student.fullName || "",
+      email: student.profile?.email || "",
+      phone: student.profile?.phone || student.phone || "",
       avatar:
         student.avatar ||
-        "https://api.dicebear.com/7.x/fun-emoji/svg?seed=User",
+        student.profile?.photoURL ||
+        `https://api.dicebear.com/7.x/initials/svg?seed=${student.profile?.fullName || "User"}`,
     });
   }, [student]);
 
@@ -84,7 +85,10 @@ const ProfileInfoSection = ({ student, onUpdate }) => {
         avatar: imageUrl,
       }));
 
-      await onUpdate({ avatar: imageUrl });
+      await onUpdate({ 
+        avatar: imageUrl,
+        "profile.photoURL": imageUrl 
+      });
     } catch (err) {
       console.error("Avatar compression failed", err);
     }
@@ -104,9 +108,10 @@ const ProfileInfoSection = ({ student, onUpdate }) => {
 
     try {
       await onUpdate({
-        fullName: formData.fullName,
-        phone: formData.phone,
-        avatar: formData.avatar,
+        "profile.fullName": formData.fullName,
+        "profile.phone": formData.phone,
+        avatar: formData.avatar, // keep legacy avatar for now as it's used in and profile.photoURL
+        "profile.photoURL": formData.avatar
       });
 
       setIsEditing(false);
@@ -173,7 +178,7 @@ const ProfileInfoSection = ({ student, onUpdate }) => {
             <img
               src={
                 formData.avatar ||
-                "https://api.dicebear.com/7.x/fun-emoji/svg?seed=User"
+                `https://api.dicebear.com/7.x/initials/svg?seed=${formData.fullName || "User"}`
               }
               alt="avatar"
               className="w-50 h-50 rounded-full bg-blue-100 relative"
@@ -200,7 +205,7 @@ const ProfileInfoSection = ({ student, onUpdate }) => {
           <div className="flex flex-col md:gap-5 gap-2 w-[70%]">
             {/* Name */}
             <div>
-              <label className="text-sm text-gray-500">Display Name</label>
+              <label className="text-sm text-gray-500">Full Name</label>
               {isEditing ? (
                 <div className=" border rounded px-3 py-2 mt-1 bg-[#f8f9fa]">
                   <input
@@ -213,7 +218,7 @@ const ProfileInfoSection = ({ student, onUpdate }) => {
                 </div>
               ) : (
                 <p className="border rounded px-3 py-2 mt-1 bg-[#f8f9fa]">
-                  {student.fullName}
+                  {student.profile?.fullName || student.fullName || "Not provided"}
                 </p>
               )}
             </div>
@@ -233,7 +238,7 @@ const ProfileInfoSection = ({ student, onUpdate }) => {
                   </div>
                 ) : (
                   <p className="border rounded px-3 py-2 mt-1 bg-[#f8f9fa]">
-                    {student.profile.email}
+                    {student.profile?.email}
                   </p>
                 )}
               </div>
@@ -253,7 +258,7 @@ const ProfileInfoSection = ({ student, onUpdate }) => {
                   </div>
                 ) : (
                   <p className="border rounded px-3 py-2 mt-1 bg-[#f8f9fa]">
-                    {student.phone || "Not provided"}
+                    {student.profile?.phone || student.phone || "Not provided"}
                   </p>
                 )}
               </div>

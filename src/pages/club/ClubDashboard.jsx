@@ -34,34 +34,44 @@ const ClubDashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (!user) return;
+    const fetchData = async (user) => {
+      setLoading(true);
+      try {
+        const userDoc = await getUserById(user.uid);
+        if (userDoc?.role !== "CLUB") {
+          console.error("Access denied: not a club account");
+          alert("This action is only available for Club accounts.");
+          navigate(-1);
+          return;
+        }
 
-      const userDoc = await getUserById(user.uid);
-      if (userDoc?.role !== "CLUB") {
-        console.error("Access denied: not a club account");
-        alert(
-          "This action is only available for Club accounts. Please go back"
-        );
-        navigate(-1);
-        return;
+        const clubData = await getClubById(user.uid);
+        setClub(clubData);
+
+        const [upcoming, past] = await Promise.all([
+          getClubUpcomingEvents(user.uid),
+          getClubPastEvents(user.uid),
+        ]);
+
+        setUpcomingEvents(upcoming);
+        setPastEvents(past);
+      } catch (err) {
+        console.error("Error fetching dashboard data:", err);
+      } finally {
+        setLoading(false);
       }
+    };
 
-      const clubData = await getClubById(user.uid);
-      setClub(clubData);
-
-      const [upcoming, past] = await Promise.all([
-        getClubUpcomingEvents(user.uid),
-        getClubPastEvents(user.uid),
-      ]);
-
-      setUpcomingEvents(upcoming);
-      setPastEvents(past);
-      setLoading(false);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        fetchData(user);
+      } else {
+        setLoading(false);
+      }
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [navigate]);
 
   if (loading) {
     return (

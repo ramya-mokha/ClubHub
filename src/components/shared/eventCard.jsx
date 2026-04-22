@@ -24,6 +24,7 @@ const EventCard = ({
   feedbackFormLink,
   path
 }) => {
+  const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&w=1200&q=80";
   const colors = getThemeClasses(theme);
   const navigate = useNavigate();
 
@@ -46,11 +47,7 @@ const EventCard = ({
           {type}
         </span>
 
-        {image ? (
-          <img src={image} alt={title} className="w-full h-full object-cover" />
-        ) : (
-          <span className="text-xs text-gray-400">No Image</span>
-        )}
+        <img src={image || FALLBACK_IMAGE} alt={title} className="w-full h-full object-cover" />
       </div>
 
       {/* CONTENT */}
