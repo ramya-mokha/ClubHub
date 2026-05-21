@@ -100,13 +100,7 @@ The platform supports **role-based dashboards** ensuring clarity, security, and 
 - Deeper AI integration (only where value is added)
 
 
-## Project Links
 
-- **Demo Video (3 Minutes):**  
-  (_Add video link here_)
-
-- **MVP Live Link:**  
-  (_Add deployed link here_)
 
 
 ## Team
